@@ -1,7 +1,7 @@
-use std::thread;
 use std::sync::mpsc;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::thread;
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
@@ -25,19 +25,15 @@ impl ThreadPool {
         let mut workers = Vec::with_capacity(size); // mark as mutable, as it will changed
 
         for id in 0..size {
-            workers.push(Worker::new(
-                id,
-                Arc::clone(&receiver)
-            ));
+            workers.push(Worker::new(id, Arc::clone(&receiver)));
         }
-        
 
         ThreadPool { workers, sender }
     }
 
     pub fn execute<F>(&self, f: F)
     where
-        F: FnOnce() + Send + 'static
+        F: FnOnce() + Send + 'static,
     {
         let job = Box::new(f); // create shared job through threads
         self.sender.send(Message::NewJob(job)).unwrap(); // send job
@@ -60,7 +56,6 @@ impl Drop for ThreadPool {
                     .join() // this will wait forever, hence implement Message::Terminate
                     .unwrap();
             }
-
         }
     }
 }
@@ -77,10 +72,10 @@ impl Worker {
         let thread = thread::spawn(move || loop {
             let message = receiver
                 .lock() // acquire mutex
-                .unwrap() // handle if fail 
+                .unwrap() // handle if fail
                 .recv() // receive job
                 .unwrap();
-            
+
             match message {
                 Message::NewJob(job) => {
                     println!("Worker {} received job!", id);
@@ -93,6 +88,9 @@ impl Worker {
             }
         });
 
-        Worker { id, thread: Some(thread) }
+        Worker {
+            id,
+            thread: Some(thread),
+        }
     }
 }

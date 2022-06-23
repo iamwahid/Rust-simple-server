@@ -1,7 +1,7 @@
+use std::io::prelude::*;
+use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
 use std::{fs, thread};
-use std::net::{TcpListener, TcpStream};
-use std::io::prelude::*;
 
 use simple_server::ThreadPool;
 
@@ -10,10 +10,10 @@ fn main() {
 
     // Serve response on Thread
     let pool = ThreadPool::new(4);
-    
+
     for stream in listener.incoming().take(2) {
         let stream = stream.unwrap();
-        
+
         pool.execute(|| {
             handle_connection(stream);
             println!("Response sent!");
@@ -38,15 +38,14 @@ fn handle_connection(mut stream: TcpStream) {
     let index = b"GET / HTTP/1.1\r\n";
     let status = b"GET /status HTTP/1.1\r\n";
 
-    let (status_line, filename) =
-        if buffer.starts_with(index) {
-            ("HTTP/1.1 200 OK", "index.html")
-        } else if buffer.starts_with(status) {
-            thread::sleep(Duration::from_secs(5));
-            ("HTTP/1.1 200 OK", "status.html")
-        } else {
-            ("HTTP/1.1 404 Not Found", "404.html")
-        };
+    let (status_line, filename) = if buffer.starts_with(index) {
+        ("HTTP/1.1 200 OK", "index.html")
+    } else if buffer.starts_with(status) {
+        thread::sleep(Duration::from_secs(5));
+        ("HTTP/1.1 200 OK", "status.html")
+    } else {
+        ("HTTP/1.1 404 Not Found", "404.html")
+    };
 
     let content = fs::read_to_string(filename).unwrap();
 
@@ -58,5 +57,4 @@ fn handle_connection(mut stream: TcpStream) {
     );
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
-
 }
