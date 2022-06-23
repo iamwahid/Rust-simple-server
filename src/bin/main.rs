@@ -11,12 +11,12 @@ fn main() {
     // Serve response on Thread
     let pool = ThreadPool::new(4);
     
-    for stream in listener.incoming() {
+    for stream in listener.incoming().take(2) {
         let stream = stream.unwrap();
         
         pool.execute(|| {
             handle_connection(stream);
-            println!("Request sent!");
+            println!("Response sent!");
         });
     }
 }
