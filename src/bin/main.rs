@@ -22,7 +22,7 @@ fn main() {
 }
 
 fn handle_connection(mut stream: TcpStream) {
-    let mut buffer = [0; 1024];
+    let mut buffer = [0; 1024]; // to store http request
     stream.read(&mut buffer).unwrap();
 
     // println!("Request: {}!", String::from_utf8_lossy(&buffer[..]));

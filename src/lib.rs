@@ -71,10 +71,10 @@ impl Worker {
         // loop : loop forever for receiving jobs
         let thread = thread::spawn(move || loop {
             let message = receiver
-                .lock() // acquire mutex
+                .lock() // acquire mutex, unwrap from Arc
                 .unwrap() // handle if fail
                 .recv() // receive job
-                .unwrap();
+                .unwrap(); // unwrap from Receiver
 
             match message {
                 Message::NewJob(job) => {
